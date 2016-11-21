@@ -21,7 +21,6 @@ class Pages @Inject()(forms: OreForms,
                       stats: StatTracker,
                       implicit override val sso: SingleSignOnConsumer,
                       implicit override val messagesApi: MessagesApi,
-                      implicit override val env: OreEnv,
                       implicit override val config: OreConfig,
                       implicit override val service: ModelService)
                       extends BaseController {

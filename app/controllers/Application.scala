@@ -24,7 +24,6 @@ import views.{html => views}
 final class Application @Inject()(data: DataHelper,
                                   implicit override val sso: SingleSignOnConsumer,
                                   implicit override val messagesApi: MessagesApi,
-                                  implicit override val env: OreEnv,
                                   implicit override val config: OreConfig,
                                   implicit override val service: ModelService)
                                   extends BaseController {

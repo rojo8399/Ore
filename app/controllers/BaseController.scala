@@ -13,8 +13,7 @@ import util.StringUtils._
 /**
   * Represents a Secured base Controller for this application.
   */
-abstract class BaseController(implicit val env: OreEnv,
-                              val config: OreConfig,
+abstract class BaseController(implicit val config: OreConfig,
                               val service: ModelService,
                               override val sso: SingleSignOnConsumer)
                               extends Controller

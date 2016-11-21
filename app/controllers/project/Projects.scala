@@ -29,7 +29,6 @@ class Projects @Inject()(stats: StatTracker,
                          implicit override val sso: SingleSignOnConsumer,
                          implicit val forums: OreDiscourseApi,
                          implicit override val messagesApi: MessagesApi,
-                         implicit override val env: OreEnv,
                          implicit override val config: OreConfig,
                          implicit override val service: ModelService)
                          extends BaseController {
@@ -326,11 +325,11 @@ class Projects @Inject()(stats: StatTracker,
   }
 
   /**
-    * Shows the project manager or "settings" pane.
+    * Shows the project manage or "settings" pane.
     *
     * @param author Project owner
     * @param slug   Project slug
-    * @return Project manager
+    * @return Project manage
     */
   def showSettings(author: String, slug: String) = SettingsEditAction(author, slug) { implicit request =>
     Ok(views.settings(request.project))
@@ -404,7 +403,7 @@ class Projects @Inject()(stats: StatTracker,
   }
 
   /**
-    * Saves the specified Project from the settings manager.
+    * Saves the specified Project from the settings manage.
     *
     * @param author Project owner
     * @param slug   Project slug

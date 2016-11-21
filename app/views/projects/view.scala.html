@@ -68,7 +68,7 @@ Base template for Project overview.
                                 }
 
                                 @if(hasUser && (user can EditSettings in project)) {
-                                    @* Show manager if permitted *@
+                                    @* Show manage if permitted *@
                                     <li id="settings" class="">
                                         <a href="@projectRoutes.Projects.showSettings(project.ownerName, project.slug)">
                                             <i class="fa fa-cog"></i> @messages("project.settings")

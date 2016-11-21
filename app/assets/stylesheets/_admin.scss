@@ -38,3 +38,10 @@
 .flag-msg {
   color: #1f7199;
 }
+
+.form-competition {
+  input[type="number"] { max-width: 40px; }
+  .setting-content {
+    text-align: right;
+  }
+}

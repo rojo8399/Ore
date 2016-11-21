@@ -10,6 +10,8 @@ GET     /admin/migrate                                              @controllers
 GET     /admin/queue                                                @controllers.Application.showQueue()
 GET     /admin/flags                                                @controllers.Application.showFlags()
 GET     /admin/flags/:id/resolve/:resolved                          @controllers.Application.setFlagResolved(id: Int, resolved: Boolean)
+GET     /admin/competitions                                         @controllers.project.Competitions.showManager()
+GET     /admin/competitions/new                                     @controllers.project.Competitions.showCreator()
 
 GET     /statusz                                                    @controllers.ApiController.showStatusZ()
 

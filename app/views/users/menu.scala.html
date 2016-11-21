@@ -1,0 +1,88 @@
+@import models.user.User
+@import ore.permission._
+@import ore.permission.scope.GlobalScope
+@import models.project.Flag
+@import db.access.ModelAccess
+@import models.project.Version
+@(user: User, flags: ModelAccess[Flag], versions: ModelAccess[Version])(implicit messages: Messages,
+        request: Request[_])
+
+@queue = @{
+    versions.filterNot(_.isReviewed)
+}
+
+<li class="dropdown user-controls">
+    <a href="#" class="drop-down-toggle user-toggle" data-toggle="dropdown">
+        @if(user.hasUnreadNotifications) {
+            <span class="unread"></span>
+        }
+        <img height="32" width="32" class="user-avatar" src="@user.avatarUrl" />
+        <span class="caret"></span>
+    </a>
+
+    <ul class="user-dropdown dropdown-menu" aria-label="@messages("aria.dropdown.menu", 1)">
+        <li>
+            <a href="@routes.Users.showProjects(user.username, None)">
+                <span class="pull-left">@user.username</span>
+                <i class="pull-right fa fa-user"></i>
+            </a>
+        </li>
+
+        <li>
+            <a href="@routes.Users.showNotifications(None, None)">
+                <span class="pull-left">
+                    @messages("notification.plural")
+                    @if(user.notifications.filterNot(_.read).nonEmpty) {
+                        <span class="unread"></span>
+                    }
+                </span>
+                <i class="pull-right fa fa-bell"></i>
+            </a>
+        </li>
+
+        @if(user can ReviewFlags in GlobalScope) {
+            <li>
+                <a href="@routes.Application.showFlags()">
+                    <span class="flags pull-left">
+                        @messages("project.flag.plural")
+                        @if(flags.filterNot(_.isResolved).nonEmpty) {
+                            <span class="unread"></span>
+                        }
+                    </span>
+                    <i class="pull-right fa fa-flag"></i>
+                </a>
+            </li>
+        }
+
+        @if(user can ReviewProjects in GlobalScope) {
+            <li>
+                <a href="@routes.Application.showQueue()">
+                    <span class="pull-left">
+                        @messages("user.queue")
+                        @if(queue.nonEmpty) {
+                            <span class="unread"></span>
+                        }
+                    </span>
+                    <i class="pull-right fa fa-thumbs-up"></i>
+                </a>
+            </li>
+        }
+
+        @if(user can EditCompetitions in GlobalScope) {
+            <li>
+                <a href="@controllers.project.routes.Competitions.showManager()">
+                    <span class="pull-left">@messages("project.competition.plural")</span>
+                    <i class="pull-right fa fa-trophy"></i>
+                </a>
+            </li>
+        }
+
+        <li role="separator" class="divider"></li>
+        <li>
+            <a href="@routes.Users.logOut(Some(request.path))">
+                <span class="pull-left">@messages("general.signout")</span>
+                <i class="pull-right fa fa-sign-out"></i>
+            </a>
+        </li>
+    </ul>
+</li>
