@@ -34,6 +34,7 @@ class Competitions @Inject()(implicit override val messagesApi: MessagesApi,
   }
 
   def create() = EditCompetitionsAction { implicit request =>
+    println(request.body.asFormUrlEncoded)
     this.forms.CompetitionCreate.bindFromRequest().fold(
       hasErrors =>
         FormError(self.showCreator(), hasErrors),

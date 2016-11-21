@@ -1,6 +1,8 @@
 package models.project
 
 import java.sql.Timestamp
+import java.time.{LocalDateTime, ZoneId}
+import java.util.Date
 
 import db.Named
 import db.impl.CompetitionTable
@@ -10,6 +12,8 @@ import form.project.CompetitionData
 import models.user.User
 import ore.user.UserOwned
 import util.StringUtils.nullIfEmpty
+
+import scala.concurrent.duration._
 
 case class Competition(override val id: Option[Int] = None,
                        override val createdAt: Option[Timestamp] = None,
@@ -36,8 +40,8 @@ case class Competition(override val id: Option[Int] = None,
     userId = user.id.get,
     name = formData.name.trim,
     _description = Option(formData.description.map(s => nullIfEmpty(s.trim)).orNull),
-    _startDate = new Timestamp(formData.startDate.getTime),
-    _endDate = new Timestamp(formData.endDate.getTime),
+    _startDate = new Timestamp(formData.startDate.atZone(formData.timeZone).toEpochSecond * 1000),
+    _endDate = new Timestamp(formData.endDate.atZone(formData.timeZone).toEpochSecond * 1000),
     _isVotingEnabled = formData.isVotingEnabled,
     _isStaffVotingOnly = formData.isStaffVotingOnly,
     _shouldShowVoteCount = formData.shouldShowVoteCount,
@@ -66,6 +70,8 @@ case class Competition(override val id: Option[Int] = None,
   def endDate_=(endDate: Timestamp) = {
     this._endDate = endDate
   }
+
+  def timeRemaining: Duration = (this.endDate.getTime - new Date().getTime).millis
 
   def isVotingEnabled: Boolean = this._isVotingEnabled
 
