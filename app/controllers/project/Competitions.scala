@@ -11,6 +11,7 @@ import ore.OreConfig
 import ore.permission.EditCompetitions
 import org.spongepowered.play.security.SingleSignOnConsumer
 import play.api.i18n.MessagesApi
+import util.StringUtils
 import views.{html => views}
 
 class Competitions @Inject()(implicit override val messagesApi: MessagesApi,
@@ -39,8 +40,14 @@ class Competitions @Inject()(implicit override val messagesApi: MessagesApi,
       hasErrors =>
         FormError(self.showCreator(), hasErrors),
       formData => {
-        this.competitions.add(new Competition(request.user, formData))
-        Redirect(self.showManager())
+        if (!formData.checkDates())
+          Redirect(self.showCreator()).withError("error.dates.competition")
+        else if (this.competitions.exists(StringUtils.equalsIgnoreCase(_.name, formData.name)))
+          Redirect(self.showCreator()).withError("error.unique.competition.name")
+        else {
+          this.competitions.add(new Competition(request.user, formData))
+          Redirect(self.showManager())
+        }
       }
     )
   }
