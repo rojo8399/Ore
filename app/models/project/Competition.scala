@@ -6,11 +6,16 @@ import db.Named
 import db.impl.CompetitionTable
 import db.impl.model.OreModel
 import db.impl.model.common.Describable
+import form.project.CompetitionData
+import models.user.User
+import ore.user.UserOwned
+import util.StringUtils.nullIfEmpty
 
-case class Competition(override val id: Option[Int],
-                       override val createdAt: Option[Timestamp],
+case class Competition(override val id: Option[Int] = None,
+                       override val createdAt: Option[Timestamp] = None,
+                       override val userId: Int,
                        override val name: String,
-                       private var _description: Option[String],
+                       private var _description: Option[String] = None,
                        private var _startDate: Timestamp,
                        private var _endDate: Timestamp,
                        private var _isVotingEnabled: Boolean = true,
@@ -22,10 +27,27 @@ case class Competition(override val id: Option[Int],
                        private var _staffVotes: Int = 1,
                        private var _allowedEntries: Int = 1,
                        private var _maxEntryTotal: Int = -1)
-                       extends OreModel(id, createdAt) with Named with Describable {
+                       extends OreModel(id, createdAt) with Named with Describable with UserOwned {
 
   override type M = Competition
   override type T = CompetitionTable
+
+  def this(user: User, formData: CompetitionData) = this(
+    userId = user.id.get,
+    name = formData.name.trim,
+    _description = Option(formData.description.map(s => nullIfEmpty(s.trim)).orNull),
+    _startDate = new Timestamp(formData.startDate.getTime),
+    _endDate = new Timestamp(formData.endDate.getTime),
+    _isVotingEnabled = formData.isVotingEnabled,
+    _isStaffVotingOnly = formData.isStaffVotingOnly,
+    _shouldShowVoteCount = formData.shouldShowVoteCount,
+    _isSpongeOnly = formData.isSpongeOnly,
+    _isSourceRequired = formData.isSourceRequired,
+    _defaultVotes = formData.defaultVotes,
+    _staffVotes = formData.staffVotes,
+    _allowedEntries = formData.allowedEntries,
+    _maxEntryTotal = formData.maxEntryTotal
+  )
 
   override def description: Option[String] = this._description
 

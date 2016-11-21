@@ -97,6 +97,8 @@ trait OreModelConfig extends ModelService with OreDBOs {
   val ChannelSchema = new ModelSchema[Channel](this, classOf[Channel], TableQuery[ChannelTable])
     .withChildren[Version](classOf[Version], _.channelId)
 
+  val CompetitionSchema = new ModelSchema[Competition](this, classOf[Competition], TableQuery[CompetitionTable])
+
   val PageSchema = new PageSchema(this)
 
   val NotificationSchema = new ModelSchema[Notification](this, classOf[Notification], TableQuery[NotificationTable])

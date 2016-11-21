@@ -3,7 +3,7 @@ package form
 import javax.inject.Inject
 
 import form.organization.{OrganizationAvatarUpdate, OrganizationMembersUpdate, OrganizationRoleSetBuilder}
-import form.project.{ChannelData, ProjectRoleSetBuilder, ProjectSettingsForm, VersionData}
+import form.project._
 import models.project.Channel
 import models.project.Page._
 import models.user.role.ProjectRole
@@ -143,6 +143,21 @@ class OreForms @Inject()(implicit config: OreConfig, factory: ProjectFactory) {
     "content" -> optional(text)
   )(VersionData.apply)(VersionData.unapply))
 
+  lazy val CompetitionCreate = Form(mapping(
+    "name" -> nonEmptyText(0, this.config.ore.getInt("competitions.name.maxLen").get),
+    "description" -> optional(nonEmptyText),
+    "start-date" -> date,
+    "end-date" -> date,
+    "enable-voting" -> default(boolean, true),
+    "staff-only" -> default(boolean, false),
+    "show-vote-count" -> default(boolean, true),
+    "sponge-only" -> default(boolean, false),
+    "source-required" -> default(boolean, false),
+    "default-votes" -> default(number(0), 1),
+    "staff-votes" -> default(number(0), 1),
+    "default-entries" -> default(number(1), 1),
+    "max-entries-total" -> default(number(-1), -1)
+  )(CompetitionData.apply)(CompetitionData.unapply))
 
   /**
     * Submits a change to a Version's description.

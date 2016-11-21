@@ -3,7 +3,8 @@
 @import db.impl.access.UserBase
 @import views.html.helper.form
 @import java.util.Date
-@()(implicit messages: Messages, request: Request[_], service: ModelService, config: OreConfig, users: UserBase)
+@()(implicit messages: Messages, request: Request[_], service: ModelService, config: OreConfig, users: UserBase,
+        flash: Flash)
 
 @bootstrap.layout(messages("project.competition.create.title")) {
 
@@ -15,11 +16,15 @@
                         <h3 class="panel-title">@messages("project.competition.create.title")</h3>
                     </div>
                     <div class="panel-body">
-                        @form(action = routes.Application.showHome(None, None, None, None, None),
+
+                        @utils.alert("error")
+
+                        @form(action = controllers.project.routes.Competitions.create(),
                             'class -> "form-competition") {
                             <div class="setting setting-no-border">
                                 <h4>@messages("general.name")</h4>
-                                <input type="text" name="name" class="form-control" />
+                                <input type="text" name="name" class="form-control" required
+                                       maxlength="@config.ore.getInt("competitions.name.maxLen").get" />
                             </div>
 
                             <div class="setting setting-no-border">
@@ -29,12 +34,12 @@
 
                             <div class="setting setting-no-border">
                                 <h4>@messages("project.competition.create.startDate")</h4>
-                                <input type="date" name="start-date" value="@(new Date().format("Y-m-d"))"/>
+                                <input type="date" name="start-date" value="@(new Date().format("Y-m-d"))" required />
                             </div>
 
                             <div class="setting">
                                 <h4>@messages("project.competition.create.endDate")</h4>
-                                <input type="date" name="end-date" />
+                                <input type="date" name="end-date" required />
                             </div>
 
                             <div class="setting">
@@ -70,11 +75,11 @@
                                 </div>
 
                                 <div class="setting-content">
-                                    <input name="enable-voting" type="checkbox" checked /><br/>
-                                    <input name="staff-only" type="checkbox" /><br/>
-                                    <input name="show-vote-count" type="checkbox" checked /><br/>
-                                    <input name="sponge-only" type="checkbox" /><br/>
-                                    <input name="source-required" type="checkbox" /><br/>
+                                    <input name="enable-voting" type="checkbox" checked value="true" /><br/>
+                                    <input name="staff-only" type="checkbox" value="true" /><br/>
+                                    <input name="show-vote-count" type="checkbox" checked value="true" /><br/>
+                                    <input name="sponge-only" type="checkbox" value="true" /><br/>
+                                    <input name="source-required" type="checkbox" value="true" /><br/>
                                     <input name="default-votes" type="number" min="0" value="1" /><br/>
                                     <input name="staff-votes" type="number" min="0" value="1" /><br />
                                     <input name="default-entries" type="number" min="0" value="1"><br/>
@@ -83,6 +88,8 @@
                                 <div class="clearfix"></div>
 
                             </div>
+
+                            <button type="submit" class="form-control pull-right">@messages("general.create")</button>
                         }
                     </div>
                 </div>

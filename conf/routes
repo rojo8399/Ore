@@ -12,6 +12,7 @@ GET     /admin/flags                                                @controllers
 GET     /admin/flags/:id/resolve/:resolved                          @controllers.Application.setFlagResolved(id: Int, resolved: Boolean)
 GET     /admin/competitions                                         @controllers.project.Competitions.showManager()
 GET     /admin/competitions/new                                     @controllers.project.Competitions.showCreator()
+POST    /admin/competitions/new                                     @controllers.project.Competitions.create()
 
 GET     /statusz                                                    @controllers.ApiController.showStatusZ()
 
