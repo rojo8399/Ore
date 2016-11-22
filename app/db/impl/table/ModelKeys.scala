@@ -58,6 +58,19 @@ object ModelKeys {
   val AvatarUrl             =   new StringKey[User](_.avatarUrl, _.avatarUrl.orNull)
   val ReadPrompts           =   new Key[User, List[Prompt]](_.readPrompts, _.readPrompts.toList)
 
+  // Competition
+  val StartDate             =   new TimestampKey[Competition](_.startDate, _.startDate)
+  val EndDate               =   new TimestampKey[Competition](_.endDate, _.endDate)
+  val TimeZone              =   new StringKey[Competition](_.timeZone, _.timeZone)
+  val IsVotingEnabled       =   new BooleanKey[Competition](_.isVotingEnabled, _.isVotingEnabled)
+  val IsStaffVotingOnly     =   new BooleanKey[Competition](_.isStaffVotingOnly, _.isStaffVotingOnly)
+  val ShouldShowVoteCount   =   new BooleanKey[Competition](_.shouldShowVoteCount, _.shouldShowVoteCount)
+  val IsSourceRequired      =   new BooleanKey[Competition](_.isSourceRequired, _.isSourceRequired)
+  val DefaultVotes          =   new IntKey[Competition](_.defaultVotes, _.defaultVotes)
+  val StaffVotes            =   new IntKey[Competition](_.staffVotes, _.staffVotes)
+  val AllowedEntries        =   new IntKey[Competition](_.allowedEntries, _.allowedEntries)
+  val MaxEntryTotal         =   new IntKey[Competition](_.maxEntryTotal, _.maxEntryTotal)
+
   // Version
   val IsReviewed            =   new BooleanKey[Version](_.isReviewed, _.isReviewed)
   val ChannelId             =   new IntKey[Version](_.channelId, _.channelId)

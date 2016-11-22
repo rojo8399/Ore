@@ -25,6 +25,7 @@ final class OreConfig @Inject()(config: Configuration) {
   lazy val projects = this.ore.getConfig("projects").get
   lazy val users = this.ore.getConfig("users").get
   lazy val orgs = this.ore.getConfig("orgs").get
+  lazy val competitions = this.ore.getConfig("competitions").get
   lazy val forums = this.root.getConfig("discourse").get
   lazy val sponge = this.root.getConfig("sponge").get
   lazy val security = this.root.getConfig("security").get

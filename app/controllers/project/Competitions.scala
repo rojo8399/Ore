@@ -35,7 +35,6 @@ class Competitions @Inject()(implicit override val messagesApi: MessagesApi,
   }
 
   def create() = EditCompetitionsAction { implicit request =>
-    println(request.body.asFormUrlEncoded)
     this.forms.CompetitionCreate.bindFromRequest().fold(
       hasErrors =>
         FormError(self.showCreator(), hasErrors),
@@ -50,6 +49,27 @@ class Competitions @Inject()(implicit override val messagesApi: MessagesApi,
         }
       }
     )
+  }
+
+  def save(id: Int) = EditCompetitionsAction { implicit request =>
+    this.competitions.get(id) match {
+      case None =>
+        NotFound
+      case Some(competition) =>
+        println(request.body.asFormUrlEncoded)
+        this.forms.CompetitionSave.bindFromRequest().fold(
+          hasErrors =>
+            FormError(self.showManager(), hasErrors),
+          formData => {
+            if (!formData.checkDates())
+              Redirect(self.showCreator()).withError("error.dates.competition")
+            else {
+              competition.save(formData)
+              Redirect(self.showManager()).withSuccess("success.saved.competition")
+            }
+          }
+        )
+    }
   }
 
 }

@@ -1,7 +1,9 @@
 package util
 
 import java.nio.file.{Files, Path}
+import java.sql.Timestamp
 import java.text.{MessageFormat, SimpleDateFormat}
+import java.time.{LocalDateTime, ZoneId}
 import java.util.Date
 
 import db.impl.OrePostgresDriver.api._
@@ -69,5 +71,8 @@ object StringUtils {
     */
   def readAndFormatFile(path: Path, params: String*): String
   = MessageFormat.format(new String(Files.readAllBytes(path)), params.map(_.asInstanceOf[AnyRef]): _*)
+
+  def localDateTime2timestamp(date: LocalDateTime, timeZone: String): Timestamp
+  = new Timestamp(date.atZone(ZoneId.of(timeZone)).toEpochSecond * 1000)
 
 }

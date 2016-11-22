@@ -101,6 +101,7 @@ class CompetitionTable(tag: Tag) extends ModelTable[Competition](tag, "project_c
   def userId = column[Int]("user_id")
   def startDate = column[Timestamp]("start_date")
   def endDate = column[Timestamp]("end_date")
+  def timeZone = column[String]("time_zone")
   def isVotingEnabled = column[Boolean]("is_voting_enabled")
   def isStaffVotingOnly = column[Boolean]("is_staff_voting_only")
   def shouldShowVoteCount = column[Boolean]("should_show_vote_count")
@@ -111,9 +112,9 @@ class CompetitionTable(tag: Tag) extends ModelTable[Competition](tag, "project_c
   def allowedEntries = column[Int]("allowed_entries")
   def maxEntryTotal = column[Int]("max_entry_total")
 
-  override def * = (id.?, createdAt.?, userId, name, description.?, startDate, endDate, isVotingEnabled, isStaffVotingOnly,
-                    shouldShowVoteCount, isSpongeOnly, isSourceRequired, defaultVotes, staffVotes, allowedEntries,
-                    maxEntryTotal) <> (Competition.tupled, Competition.unapply)
+  override def * = (id.?, createdAt.?, userId, name, description.?, startDate, endDate, timeZone, isVotingEnabled,
+                    isStaffVotingOnly, shouldShowVoteCount, isSpongeOnly, isSourceRequired, defaultVotes, staffVotes,
+                    allowedEntries, maxEntryTotal) <> (Competition.tupled, Competition.unapply)
 
 }
 
