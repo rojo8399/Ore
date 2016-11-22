@@ -1,5 +1,6 @@
 @import db.ModelService
 @import db.impl.access.UserBase
+@import db.impl.OrePostgresDriver.api._
 @import models.project.Competition
 @import ore.OreConfig
 @import java.sql.Timestamp
@@ -17,7 +18,10 @@
 
 @formatTime(competition: Competition) = @{
     val seconds = competition.timeRemaining.toSeconds
-    "%dd %d:%02d:%02d".format(seconds / 86400, (seconds % 86400) / 3600, (seconds % 3600) / 60, seconds % 60)
+    if (seconds <= 0)
+        "0d 0:00:00"
+    else
+        "%dd %d:%02d:%02d".format(seconds / 86400, (seconds % 86400) / 3600, (seconds % 3600) / 60, seconds % 60)
 }
 
 @formatDate(ts: Timestamp, timeZone: String) = @{
@@ -27,6 +31,10 @@
 
 @maybeChecked(b: Boolean) = @{
     if (b) "checked" else ""
+}
+
+@maybeDisabled(competition: Competition) = @{
+    if (competition.timeRemaining.toSeconds <= 0) "disabled" else ""
 }
 
 @bootstrap.layout(messages("project.competition.title")) {
@@ -59,18 +67,25 @@
                     </div>
                 } else {
                     <div class="list-competitions">
-                        @competitions.all.map { competition =>
+                        @competitions.sorted(_.createdAt).map { competition =>
                           <li class="list-group-item">
                               <h4 class="pull-left">
                                   @competition.name
                                   <a class="competition-expand" href="#"><i class="fa fa-chevron-right"></i></a>
                               </h4>
-                              <h4 class="counter pull-right">@formatTime(competition)</h4>
+                              <div class="pull-right">
+                                  <a href="#" class="btn-results btn btn-sm btn-success pull-left"
+                                     @if(competition.timeRemaining.toSeconds > 0) { style="display: none;" }>
+                                    @messages("project.competition.viewResults")
+                                  </a>
+                                  <h4 class="counter pull-right">@formatTime(competition)</h4>
+                              </div>
                               <div class="clearfix"></div>
 
                               <div class="competition-drawer">
                                   @form(action = controllers.project.routes.Competitions.save(competition.id.get)) {
-                                      <a href="#" class="competition-delete"><i class="fa fa-trash"></i></a>
+                                      <a href="#" data-toggle="modal" data-target="#modal-competition-delete"
+                                         class="competition-delete"><i class="fa fa-trash"></i></a>
 
                                       <div class="row">
                                           <div class="col-md-4">
@@ -80,7 +95,7 @@
                                                          value="@formatDate(
                                                              competition.startDate,
                                                              competition.timeZone)"
-                                                         required />
+                                                         required  @maybeDisabled(competition) />
                                               </div>
 
                                               <div class="setting setting-no-border">
@@ -89,9 +104,9 @@
                                                          value="@formatDate(
                                                              competition.endDate,
                                                              competition.timeZone)"
-                                                         required />
+                                                         required @maybeDisabled(competition) />
 
-                                                  <select name="time-zone" required>
+                                                  <select name="time-zone" required  @maybeDisabled(competition)>
                                                   @for(id <- ZoneId.getAvailableZoneIds.asScala.toList.sorted) {
                                                       <option value="@id" @if(id.equals(competition.timeZone)) {
                                                           selected
@@ -111,7 +126,7 @@
                                                           </label>
                                                       </td>
                                                       <td>
-                                                          <input name="enable-voting" type="checkbox" @maybeChecked(competition.isVotingEnabled) value="true" />
+                                                          <input name="enable-voting" type="checkbox" @maybeChecked(competition.isVotingEnabled) value="true" @maybeDisabled(competition) />
                                                       </td>
                                                   </tr>
                                                   <tr>
@@ -121,7 +136,7 @@
                                                           </label>
                                                       </td>
                                                       <td>
-                                                          <input name="staff-only" type="checkbox" @maybeChecked(competition.isStaffVotingOnly) value="true" />
+                                                          <input name="staff-only" type="checkbox" @maybeChecked(competition.isStaffVotingOnly) value="true" @maybeDisabled(competition) />
                                                       </td>
                                                   </tr>
                                                   <tr>
@@ -131,7 +146,7 @@
                                                           </label>
                                                       </td>
                                                       <td>
-                                                          <input name="show-vote-count" type="checkbox" @maybeChecked(competition.shouldShowVoteCount) value="true" />
+                                                          <input name="show-vote-count" type="checkbox" @maybeChecked(competition.shouldShowVoteCount) value="true" @maybeDisabled(competition) />
                                                       </td>
                                                   </tr>
                                                   <tr>
@@ -141,7 +156,7 @@
                                                           </label>
                                                       </td>
                                                       <td>
-                                                          <input name="source-required" type="checkbox" @maybeChecked(competition.isSourceRequired) value="true" />
+                                                          <input name="source-required" type="checkbox" @maybeChecked(competition.isSourceRequired) value="true" @maybeDisabled(competition) />
                                                       </td>
                                                   </tr>
                                               </table>
@@ -155,7 +170,7 @@
                                                           </label>
                                                       </td>
                                                       <td>
-                                                          <input name="default-votes" type="number" min="0" value="@competition.defaultVotes" />
+                                                          <input name="default-votes" type="number" min="0" value="@competition.defaultVotes" @maybeDisabled(competition) />
                                                       </td>
                                                   </tr>
                                                   <tr>
@@ -165,7 +180,7 @@
                                                           </label>
                                                       </td>
                                                       <td>
-                                                          <input name="staff-votes" type="number" min="0" value="@competition.staffVotes" />
+                                                          <input name="staff-votes" type="number" min="0" value="@competition.staffVotes" @maybeDisabled(competition) />
                                                       </td>
                                                   </tr>
                                                   <tr>
@@ -175,7 +190,7 @@
                                                           </label>
                                                       </td>
                                                       <td>
-                                                          <input name="default-entries" type="number" min="0" value="@competition.allowedEntries">
+                                                          <input name="default-entries" type="number" min="0" value="@competition.allowedEntries" @maybeDisabled(competition)>
                                                       </td>
                                                   </tr>
                                                   <tr>
@@ -185,7 +200,7 @@
                                                           </label>
                                                       </td>
                                                       <td>
-                                                          <input name="max-entries-total" type="number" min="0" value="@competition.maxEntryTotal">
+                                                          <input name="max-entries-total" type="number" min="0" value="@competition.maxEntryTotal" @maybeDisabled(competition)>
                                                       </td>
                                                   </tr>
                                               </table>
@@ -198,6 +213,24 @@
                                       </div>
                                   }
                               </div>
+
+                              @utils.modal(
+                                  id = "modal-competition-delete",
+                                  label = "label-competition-delete",
+                                  titleId = "project.competition.delete.title") {
+                                  <div class="modal-body">
+                                  @messages("project.competition.delete.body")
+                                  </div>
+                                  <div class="modal-footer">
+                                      <button type="button" class="btn btn-default" data-dismiss="modal">
+                                      @messages("general.cancel")
+                                      </button>
+                                      <a href="@controllers.project.routes.Competitions.delete(competition.id.get)"
+                                         class="btn btn-danger">
+                                      @messages("general.delete")
+                                      </a>
+                                  </div>
+                              }
                           </li>
                         }
                     </div>

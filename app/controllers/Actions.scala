@@ -1,8 +1,9 @@
 package controllers
 
 import controllers.Requests._
+import db.access.ModelAccess
 import db.impl.access.{OrganizationBase, ProjectBase, UserBase}
-import models.project.Project
+import models.project.{Competition, Project}
 import models.user.User
 import ore.permission.scope.GlobalScope
 import ore.permission.{EditSettings, HideProjects, Permission}
@@ -22,6 +23,7 @@ trait Actions extends Calls with ActionHelpers {
   val users: UserBase
   val projects: ProjectBase
   val organizations: OrganizationBase
+  val competitions: ModelAccess[Competition]
   val sso: SingleSignOnConsumer
 
   val PermsLogger = play.api.Logger("Permissions")
@@ -135,6 +137,10 @@ trait Actions extends Calls with ActionHelpers {
     * @return   [[AuthedOrganizationRequest]]
     */
   def OrganizationPermissionAction(p: Permission) = PermissionAction[AuthedOrganizationRequest](p)
+
+  def CompetitionAction(id: Int) = Action andThen competitionAction(id)
+
+  def AuthedCompetitionAction(id: Int) = Authenticated andThen authedCompetitionAction(id)
 
   /**
     * A request that ensures that a user has permission to edit a specified
@@ -276,6 +282,22 @@ trait Actions extends Calls with ActionHelpers {
     def refine[A](request: AuthRequest[A]) = Future.successful {
       Actions.this.organizations.withName(organization)
         .map(new AuthedOrganizationRequest[A](_, request))
+        .toRight(NotFound)
+    }
+  }
+
+  private def competitionAction(id: Int) = new ActionRefiner[Request, CompetitionRequest] {
+    def refine[A](request: Request[A]): Future[Either[Result, CompetitionRequest[A]]] = Future.successful {
+      Actions.this.competitions.get(id)
+        .map(new CompetitionRequest(_, request))
+        .toRight(NotFound)
+    }
+  }
+
+  private def authedCompetitionAction(id: Int) = new ActionRefiner[AuthRequest, AuthedCompetitionRequest] {
+    def refine[A](request: AuthRequest[A]): Future[Either[Result, AuthedCompetitionRequest[A]]] = Future.successful {
+      Actions.this.competitions.get(id)
+        .map(AuthedCompetitionRequest(_, request))
         .toRight(NotFound)
     }
   }

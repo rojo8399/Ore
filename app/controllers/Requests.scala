@@ -1,6 +1,6 @@
 package controllers
 
-import models.project.Project
+import models.project.{Competition, Project}
 import models.user.{Organization, User}
 import ore.permission.scope.ScopeSubject
 import play.api.mvc.{Request, WrappedRequest}
@@ -66,6 +66,13 @@ object Requests {
       with ScopedRequest[A] {
     override def user: User = request.user
     override val subject: ScopeSubject = this.organization
+  }
+
+  class CompetitionRequest[A](val competition: Competition, request: Request[A]) extends WrappedRequest[A](request)
+
+  case class AuthedCompetitionRequest[A](override val competition: Competition,  request: AuthRequest[A])
+    extends CompetitionRequest[A](competition, request) {
+    def user: User = request.user
   }
 
 }

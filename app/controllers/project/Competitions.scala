@@ -22,7 +22,6 @@ class Competitions @Inject()(implicit override val messagesApi: MessagesApi,
                              extends BaseController {
 
   private val self = routes.Competitions
-  private val competitions = this.service.access[Competition](classOf[Competition])
 
   def EditCompetitionsAction = Authenticated andThen PermissionAction[AuthRequest](EditCompetitions)
 
@@ -51,25 +50,25 @@ class Competitions @Inject()(implicit override val messagesApi: MessagesApi,
     )
   }
 
-  def save(id: Int) = EditCompetitionsAction { implicit request =>
-    this.competitions.get(id) match {
-      case None =>
-        NotFound
-      case Some(competition) =>
-        println(request.body.asFormUrlEncoded)
-        this.forms.CompetitionSave.bindFromRequest().fold(
-          hasErrors =>
-            FormError(self.showManager(), hasErrors),
-          formData => {
-            if (!formData.checkDates())
-              Redirect(self.showCreator()).withError("error.dates.competition")
-            else {
-              competition.save(formData)
-              Redirect(self.showManager()).withSuccess("success.saved.competition")
-            }
-          }
-        )
-    }
+  def save(id: Int) = (EditCompetitionsAction andThen AuthedCompetitionAction(id)) { implicit request =>
+    println(request.body.asFormUrlEncoded)
+    this.forms.CompetitionSave.bindFromRequest().fold(
+      hasErrors =>
+        FormError(self.showManager(), hasErrors),
+      formData => {
+        if (!formData.checkDates())
+          Redirect(self.showManager()).withError("error.dates.competition")
+        else {
+          request.competition.save(formData)
+          Redirect(self.showManager()).withSuccess("success.saved.competition")
+        }
+      }
+    )
+  }
+
+  def delete(id: Int) = (EditCompetitionsAction andThen AuthedCompetitionAction(id)) { implicit request =>
+    this.competitions.remove(request.competition)
+    Redirect(self.showManager()).withSuccess("success.deleted.competition")
   }
 
 }

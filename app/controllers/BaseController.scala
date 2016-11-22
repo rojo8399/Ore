@@ -1,9 +1,10 @@
 package controllers
 
 import db.ModelService
+import db.access.ModelAccess
 import db.impl.VersionTable
 import db.impl.access.{OrganizationBase, ProjectBase, UserBase}
-import models.project.{Project, Version}
+import models.project.{Competition, Project, Version}
 import ore.{OreConfig, OreEnv}
 import org.spongepowered.play.security.SingleSignOnConsumer
 import play.api.i18n.I18nSupport
@@ -23,6 +24,7 @@ abstract class BaseController(implicit val config: OreConfig,
   implicit override val users: UserBase = this.service.getModelBase(classOf[UserBase])
   implicit override val projects: ProjectBase = this.service.getModelBase(classOf[ProjectBase])
   implicit override val organizations: OrganizationBase = this.service.getModelBase(classOf[OrganizationBase])
+  implicit override val competitions: ModelAccess[Competition] = this.service.access[Competition](classOf[Competition])
 
   /**
     * Executes the given function with the specified result or returns a
